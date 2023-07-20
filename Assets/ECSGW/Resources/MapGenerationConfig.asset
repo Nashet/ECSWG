@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e7567d5b08877f348ad0d7c3cfbfa82a, type: 3}
+  m_Name: MapGenerationConfig
+  m_EditorClassIdentifier: 
+  xSize: 12
+  ySize: 7
+  AllowedCellTypes:
+  - {fileID: 11400000, guid: 052dd5c8d35190749aaae017df86d113, type: 2}
+  - {fileID: 11400000, guid: 6e660607f6f43c0418afad0d4e24ee78, type: 2}
+  - {fileID: 11400000, guid: 4e7d520109e666040a132aaa083a1c9b, type: 2}
