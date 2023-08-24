@@ -11,10 +11,4 @@ namespace Nashet.ECS
 	{
 		public EcsPackedEntity country;
 	}
-
-	public struct BattleComponent
-	{
-		public EcsPackedEntity attacker;
-		public EcsPackedEntity victim;
-	}
 }

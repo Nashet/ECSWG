@@ -31,6 +31,8 @@ namespace Nashet.Controllers
 		private readonly EcsWorld world;
 		private EcsPackedEntity? previouslySelectedUnit;
 		private EcsPool<PositionComponent> positions;
+		private EcsPool<BattleComponent> battles;
+		private EcsPool<DamageComponent> damages;
 
 		public MapController(IConfigService configService, MapComponent map, EcsWorld world)
 		{
@@ -40,6 +42,9 @@ namespace Nashet.Controllers
 			//map.ExplosionHappened += ExplosionHappenedHandler;
 			this.configService = configService;
 			positions = world.GetPool<PositionComponent>();
+			battles = world.GetPool<BattleComponent>();
+			damages = world.GetPool<DamageComponent>();
+
 			IsReady = true;
 		}
 
@@ -123,26 +128,43 @@ namespace Nashet.Controllers
 
 			foreach (int entity in filter)
 			{
-				ref var position = ref positions.Get(entity);
-				if (position.pos == clickedCell)
+				ref var clickedPosition = ref positions.Get(entity);
+				if (clickedPosition.pos == clickedCell)
 				{
-					ref var type = ref types.Get(entity);
-					map.CopyTo(position, clickedCell);
-
-					UnitClicked?.Invoke(clickedCell, worldPosition);
-
-					RefreshWaypoints(clickedCell);
+					//ref var type = ref types.Get(entity);
+					//map.CopyTo(somePosition, clickedCell);
 
 					if (previouslySelectedUnit.HasValue)
 					{
-						previouslySelectedUnit.Value.Unpack(world, out int unpackedEntity);
-						if (entity == unpackedEntity)
+						previouslySelectedUnit.Value.Unpack(world, out int unpackedPreviouslySelectedUnit);
+						if (entity == unpackedPreviouslySelectedUnit)
 						{
 							WaypointsRefresh?.Invoke(null);
 							previouslySelectedUnit = null;
 							return;
 						}
+						else
+						{
+							var damage = damages.Get(unpackedPreviouslySelectedUnit);
+
+							var attackersPosition = positions.Get(unpackedPreviouslySelectedUnit);
+							var actualDistance = GetDistance(clickedPosition.pos, attackersPosition.pos);
+							if (actualDistance <= damage.distance)
+							{
+								//attacked someone
+								ref var battle = ref entity.AddnSet(battles);
+								battle.Attacker = previouslySelectedUnit.Value;
+							}
+						}
 					}
+					else
+					{
+						UnitClicked?.Invoke(clickedCell, worldPosition);
+
+						RefreshWaypoints(clickedCell);
+					}
+
+
 					previouslySelectedUnit = world.PackEntity(entity);
 
 					clickedOnEmptyCell = false;
@@ -158,9 +180,19 @@ namespace Nashet.Controllers
 
 		private void RefreshWaypoints(Vector2Int clickedCell)
 		{
-			var list = NearByPoints2(clickedCell);
-			list.Remove(clickedCell);
-			WaypointsRefresh?.Invoke(list);
+			var waypoints = NearByPoints2(clickedCell);
+			waypoints.Remove(clickedCell);
+			WaypointsRefresh?.Invoke(waypoints);
+		}
+
+		private int GetDistance(Vector2Int from, Vector2Int toPosition)
+		{
+			return Mathf.Abs(from.x - toPosition.x) + Mathf.Abs(from.y - toPosition.y);
+		}
+
+		private bool IsAllowedMoveDistance(Vector2Int from, Vector2Int toPosition)
+		{
+			return GetDistance(from, toPosition) <= 2;
 		}
 
 		private void ClickedOnEmptyCellHandler(Vector2Int clickedCell, Vector3 worldPosition)
@@ -168,6 +200,9 @@ namespace Nashet.Controllers
 			if (previouslySelectedUnit != null)
 			{
 				var fromPosition = previouslySelectedUnit.Value.UnpackComponent(world, positions);
+				if (!IsAllowedMoveDistance(fromPosition.pos, clickedCell))
+					return;
+
 				MoveUnit(previouslySelectedUnit.Value, fromPosition.pos, clickedCell);
 				previouslySelectedUnit = null;
 			}

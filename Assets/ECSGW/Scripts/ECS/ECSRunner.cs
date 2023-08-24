@@ -47,18 +47,18 @@ namespace Nashet.ECS
 
 			updateSystems.Init();
 
-			updateSystems.Run();
+			//updateSystems.Run();
 
-			fixedUpdateSystems = new EcsSystems(world)// gameData)
-				;
+			//fixedUpdateSystems = new EcsSystems(world)// gameData)
+			//	;
 
-			fixedUpdateSystems.Init();
+			//fixedUpdateSystems.Init();
 		}
 
-		//private void Update()
-		//{
-		//	updateSystems.Run();
-		//}
+		private void Update()
+		{
+			updateSystems.Run();
+		}
 
 		//private void FixedUpdate()
 		//{
@@ -69,7 +69,7 @@ namespace Nashet.ECS
 		{
 			initSystems.Destroy();
 			updateSystems.Destroy();
-			fixedUpdateSystems.Destroy();
+			//fixedUpdateSystems.Destroy();
 			world.Destroy();
 		}
 	}

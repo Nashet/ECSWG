@@ -7,12 +7,12 @@ namespace Nashet.Controllers
 {
 	public class ScoresController
 	{
-		private EcsWorld _model;
+		//private EcsWorld _model;
 		private IScoresView view;
 
 		public ScoresController(IScoresView view)//EcsWorld model, 
 		{
-			_model = null; //model
+			//_model = null; //model
 			this.view = view;
 			//_model.ScoresChanged += OnScoresChanged;
 		}

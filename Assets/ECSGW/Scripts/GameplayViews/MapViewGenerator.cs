@@ -8,8 +8,8 @@ namespace Nashet.GameplayView
 	public class MapViewGenerator : MonoBehaviour
 	{
 		[SerializeField] GameObject cellViewPrefab;
-
 		[SerializeField] MapView mapView;
+
 		private IMapController mapController;
 
 		private IEnumerator Start()

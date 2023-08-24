@@ -1,31 +1,17 @@
 ﻿using Nashet.Controllers;
-using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 namespace Nashet.GameplayView
 {
 	public class MapView : MonoBehaviour
 	{
 		[SerializeField] GameObject unitPrefab;
+
 		private List<List<CellView>> cellViewList;
 		private IMapController mapController;
 		private float xOffset;
 		private float yOffset;
-
-		//private const float cellScaleMultiplier = 1.01f;		
-
-		private void AnimateCellSlide(Vector2Int from, Vector2Int to)
-		{
-			cellViewList[from.y][from.x].SetSprite(mapController.GetSprite(from.x, from.y));
-			cellViewList[to.y][to.x].SetSprite(mapController.GetSprite(to.x, to.y));
-		}
-
-		private void AnimateCellFalling(Vector2Int value)
-		{
-			throw new NotImplementedException();
-		}
 
 		private void AnimateExposion(Vector2Int where, int amount)
 		{
@@ -56,7 +42,9 @@ namespace Nashet.GameplayView
 
 		private void UnitMovedHandler(Vector2Int from, Vector2Int toPosition)
 		{
+			//Debug.LogError($"moving from {from} to {toPosition}");
 			cellViewList[from.y][from.x].unitView.transform.position = GetOffsetedPosition(toPosition);
+			cellViewList[toPosition.y][toPosition.x] = cellViewList[from.y][from.x];
 			ClearWaypoints();
 		}
 
