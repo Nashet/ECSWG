@@ -12,11 +12,13 @@ namespace Nashet.ECS
 			var World = systems.GetWorld();
 			var mapPool = World.GetPool<MapComponent>();
 			var playerPool = World.GetPool<PlayerComponent>();
-			var health = World.GetPool<HealthComponent>();
-			var position = World.GetPool<PositionComponent>();
-			var damage = World.GetPool<DamageComponent>();
-			var speed = World.GetPool<MovementSpeed>();
-			var unitType = World.GetPool<UnitTypeComponent>();
+			var healths = World.GetPool<HealthComponent>();
+			var positions = World.GetPool<PositionComponent>();
+			var damages = World.GetPool<DamageComponent>();
+			var speeds = World.GetPool<MovementSpeed>();
+			var unitTypes = World.GetPool<UnitTypeComponent>();
+			var movementBlocks = World.GetPool<BlocksMovementComponent>();
+
 
 			var map = World.NewEntity();
 			mapPool.Add(map);
@@ -37,21 +39,23 @@ namespace Nashet.ECS
 			AddUnit(0, 5);
 			AddUnit(11, 6);
 
-			var unitEntity = World.NewEntity();
-			health.Add(unitEntity);
-			ref var zz = ref health.Get(unitEntity);
-			zz.Set(45, 45);
-
 			void AddUnit(int x, int y)
 			{
 				var unitEntity = World.NewEntity();
 				//unitEntity.Add(health).Add(position);
-				unitEntity.AddnSet(health).Set(100, 8);
-				unitEntity.AddnSet(position).Set(new Vector2Int(x, y));
-				unitEntity.AddnSet(damage).Set(12, 2);
-				unitEntity.AddnSet(speed).speed = 4;
-				unitEntity.AddnSet(unitType).unitId = "A";
+				unitEntity.AddnSet(healths).Set(100, 8);
+				unitEntity.AddnSet(positions).Set(new Vector2Int(x, y));
+				unitEntity.AddnSet(damages).Set(12, 2);
+				unitEntity.AddnSet(speeds).speed = 4;
+				unitEntity.AddnSet(unitTypes).unitId = "A";
+				unitEntity.Add(movementBlocks);
 			}
+
+			//that is for experiment:
+			var unitEntity = World.NewEntity();
+			healths.Add(unitEntity);
+			ref var health = ref healths.Get(unitEntity);
+			health.Set(45, 45);
 		}
 	}
 }

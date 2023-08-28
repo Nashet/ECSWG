@@ -55,6 +55,7 @@ namespace Nashet.ECS
 			perTurnUpdateSystems = new EcsSystems(world)
 				
 				.Add(new HealthSystem())
+				.Add(new AIMoveSystem())
 			;
 
 			perTurnUpdateSystems.Init();

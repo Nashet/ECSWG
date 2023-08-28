@@ -1,7 +1,6 @@
 using Leopotam.EcsLite;
 using Nashet.Utils;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 namespace Nashet.ECS
 {

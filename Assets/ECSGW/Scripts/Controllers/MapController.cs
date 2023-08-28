@@ -3,6 +3,7 @@ using Nashet.Configs;
 using Nashet.ECS;
 using Nashet.Services;
 using Nashet.Utils;
+using System;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -54,13 +55,25 @@ namespace Nashet.Controllers
 
 			foreach (var item in ECSRunner.updateSystems.GetAllSystems())
 			{
-				var healthSystem = item as BattleSystem;
-				if (healthSystem != null)
+				
+				if (item is BattleSystem healthSystem)
 				{
-					healthSystem.OnUnitDied += OnUnitDiedHandler;
-					break;
+					healthSystem.OnUnitDied += OnUnitDiedHandler;					
 				}
 			}
+
+			foreach (var item in ECSRunner.perTurnUpdateSystems.GetAllSystems())
+			{
+				if (item is AIMoveSystem AIMoveSystem)
+				{
+					AIMoveSystem.UnitMoved += AIUnitMOvedhandler;
+				}
+			}
+		}
+
+		private void AIUnitMOvedhandler(Vector2Int from, Vector2Int toPosition)
+		{
+			UnitMoved?.Invoke(from, toPosition);
 		}
 
 		private void OnUnitDiedHandler(Vector2Int position)
@@ -210,11 +223,6 @@ namespace Nashet.Controllers
 		private bool IsAllowedMoveDistance(Vector2Int from, Vector2Int toPosition)
 		{
 			return GetDistance(from, toPosition) <= 2;
-		}
-
-		private void UnitDiedHandler(Vector2Int position)
-		{
-			OnUnitDied?.Invoke(position);
 		}
 
 		private void ClickedOnEmptyCellHandler(Vector2Int clickedCell, Vector3 worldPosition)
