@@ -53,11 +53,5 @@ namespace Nashet.ECS
 				unitEntity.AddnSet(unitType).unitId = "A";
 			}
 		}
-
-
-		//private Vector2Int GetRandom()
-		//{
-
-		//}
 	}
 }
