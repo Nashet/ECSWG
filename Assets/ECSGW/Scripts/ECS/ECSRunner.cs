@@ -11,6 +11,7 @@ namespace Nashet.ECS
 		public IEcsSystems initSystems;
 		public IEcsSystems updateSystems;
 		public IEcsSystems fixedUpdateSystems;
+		public IEcsSystems perTurnUpdateSystems;
 		//[SerializeField] private ConfigurationSO configuration;
 		//[SerializeField] private Text coinCounter;
 		//[SerializeField] private GameObject gameOverPanel;
@@ -19,7 +20,7 @@ namespace Nashet.ECS
 		private void Start()
 		{
 			world = new EcsWorld();
-			
+
 			//var gameData = new GameData();
 
 			//gameData.configuration = configuration;
@@ -34,7 +35,7 @@ namespace Nashet.ECS
 				;
 
 			initSystems.Init();
-			IsReady = true;
+
 
 			updateSystems = new EcsSystems(world)//, gameData)	
 
@@ -43,19 +44,31 @@ namespace Nashet.ECS
 			//.Add (new Leopotam.EcsLite.UnityEditor.EcsWorldDebugSystem ("events"))
 			.Add(new Leopotam.EcsLite.UnityEditor.EcsWorldDebugSystem(entityNameFormat: "000"))
 #endif
-			.Add(new BattleSystem())
-			.Add(new HealthSystem())
+			.Add(new BattleSystem()) // should be called imme=idiatly after battle is happened!!
 				;
 
 			updateSystems.Init();
 
 			//fixedUpdateSystems = new EcsSystems(world)// gameData)
 			//fixedUpdateSystems.Init();
+
+			perTurnUpdateSystems = new EcsSystems(world)
+				
+				.Add(new HealthSystem())
+			;
+
+			perTurnUpdateSystems.Init();
+			IsReady = true;
 		}
 
 		private void Update()
 		{
 			updateSystems.Run();
+		}
+
+		private void TurnUpdate()
+		{
+			perTurnUpdateSystems.Run();
 		}
 
 		//private void FixedUpdate()

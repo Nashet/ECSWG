@@ -30,6 +30,8 @@ namespace Nashet.Controllers
 		public bool IsReady { get; private set; }
 
 		private readonly IConfigService configService;
+		private readonly IEcsSystems perTurnSystems;
+
 		private readonly MapComponent map;
 		private readonly EcsWorld world;
 		private EcsPackedEntity? previouslySelectedUnit;
@@ -40,9 +42,9 @@ namespace Nashet.Controllers
 		public MapController(IConfigService configService, MapComponent map, ECSRunner ECSRunner)
 		{
 			this.map = map;
-			this.world = ECSRunner.world;
+			world = ECSRunner.world;
+			perTurnSystems = ECSRunner.perTurnUpdateSystems;
 
-			//map.ExplosionHappened += ExplosionHappenedHandler;
 			this.configService = configService;
 			positions = world.GetPool<PositionComponent>();
 			battles = world.GetPool<BattleComponent>();
@@ -52,7 +54,7 @@ namespace Nashet.Controllers
 
 			foreach (var item in ECSRunner.updateSystems.GetAllSystems())
 			{
-				var healthSystem = item as HealthSystem;
+				var healthSystem = item as BattleSystem;
 				if (healthSystem != null)
 				{
 					healthSystem.OnUnitDied += OnUnitDiedHandler;
@@ -88,7 +90,7 @@ namespace Nashet.Controllers
 
 		public void SimulateOneStep()
 		{
-			//map.CheckRowsForCoincidence();
+			perTurnSystems.Run();
 		}
 
 		public Sprite GetSprite(string cellType)
@@ -170,6 +172,7 @@ namespace Nashet.Controllers
 								//attacked someone
 								ref var battle = ref entity.AddnSet(battles);
 								battle.Attacker = previouslySelectedUnit.Value;
+								//here run only some systems some how
 							}
 						}
 					}
