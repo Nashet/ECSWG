@@ -25,6 +25,8 @@ namespace Nashet.GameplayView
 			mapController.WaypointsRefresh += WaypointsRefreshHandler;
 			mapController.UnitMoved += UnitMovedHandler;
 			mapController.UnitAppeared += UnitAppearedHandler;
+			mapController.OnUnitDied += MapController_OnUnitDied;
+
 			xOffset = mapController.GetSize().x / 2f - 0.5f;
 			yOffset = mapController.GetSize().y / 2f - 0.5f;//todo fixit
 		}
@@ -37,7 +39,13 @@ namespace Nashet.GameplayView
 				mapController.WaypointsRefresh -= WaypointsRefreshHandler;
 				mapController.UnitMoved -= UnitMovedHandler;
 				mapController.UnitAppeared -= UnitAppearedHandler;
+				mapController.OnUnitDied -= MapController_OnUnitDied;
 			}
+		}
+
+		private void MapController_OnUnitDied(Vector2Int position)
+		{
+			Destroy(cellViewList[position.y][position.x].unitView.gameObject); //todo use object pool
 		}
 
 		private void UnitMovedHandler(Vector2Int from, Vector2Int toPosition)

@@ -8,9 +8,9 @@ namespace Nashet.ECS
 		public bool IsReady { get; private set; }
 
 		public EcsWorld world { get; private set; }
-		private IEcsSystems initSystems;
-		private IEcsSystems updateSystems;
-		private IEcsSystems fixedUpdateSystems;
+		public IEcsSystems initSystems;
+		public IEcsSystems updateSystems;
+		public IEcsSystems fixedUpdateSystems;
 		//[SerializeField] private ConfigurationSO configuration;
 		//[SerializeField] private Text coinCounter;
 		//[SerializeField] private GameObject gameOverPanel;
@@ -19,6 +19,7 @@ namespace Nashet.ECS
 		private void Start()
 		{
 			world = new EcsWorld();
+			
 			//var gameData = new GameData();
 
 			//gameData.configuration = configuration;
@@ -38,20 +39,17 @@ namespace Nashet.ECS
 			updateSystems = new EcsSystems(world)//, gameData)	
 
 #if UNITY_EDITOR
-		// add debug systems for custom worlds here, for example:
-		// .Add (new Leopotam.EcsLite.UnityEditor.EcsWorldDebugSystem ("events"))
-		.Add(new Leopotam.EcsLite.UnityEditor.EcsWorldDebugSystem(entityNameFormat: "000"))
+			// add debug systems for custom worlds here, for example:
+			//.Add (new Leopotam.EcsLite.UnityEditor.EcsWorldDebugSystem ("events"))
+			.Add(new Leopotam.EcsLite.UnityEditor.EcsWorldDebugSystem(entityNameFormat: "000"))
 #endif
-		.Add(new BattleSystem())
+			.Add(new BattleSystem())
+			.Add(new HealthSystem())
 				;
 
 			updateSystems.Init();
 
-			//updateSystems.Run();
-
 			//fixedUpdateSystems = new EcsSystems(world)// gameData)
-			//	;
-
 			//fixedUpdateSystems.Init();
 		}
 

@@ -46,7 +46,7 @@ namespace Nashet.ECS
 			{
 				var unitEntity = World.NewEntity();
 				//unitEntity.Add(health).Add(position);
-				unitEntity.AddnSet(health).Set(100, 100);
+				unitEntity.AddnSet(health).Set(100, 8);
 				unitEntity.AddnSet(position).Set(new Vector2Int(x, y));
 				unitEntity.AddnSet(damage).Set(12, 2);
 				unitEntity.AddnSet(speed).speed = 4;

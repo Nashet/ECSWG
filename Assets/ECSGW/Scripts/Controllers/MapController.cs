@@ -14,6 +14,8 @@ namespace Nashet.Controllers
 	public delegate void OnExplosionHappened(Vector2Int where, int amount);
 	public delegate void OnUnitAppeared(Vector2Int position, string unitType);
 	public delegate void OnUnitMoved(Vector2Int from, Vector2Int toPosition);
+	public delegate void OnUnitDied(Vector2Int position);
+
 	public enum Direction { horizontal, vertical }
 
 	public class MapController : IMapController
@@ -24,6 +26,7 @@ namespace Nashet.Controllers
 		public event OnUnitClicked EmptyCellClicked;
 		public event OnWaypointsRefresh WaypointsRefresh;
 		public event OnUnitMoved UnitMoved;
+		public event OnUnitDied OnUnitDied;
 		public bool IsReady { get; private set; }
 
 		private readonly IConfigService configService;
@@ -34,10 +37,10 @@ namespace Nashet.Controllers
 		private EcsPool<BattleComponent> battles;
 		private EcsPool<DamageComponent> damages;
 
-		public MapController(IConfigService configService, MapComponent map, EcsWorld world)
+		public MapController(IConfigService configService, MapComponent map, ECSRunner ECSRunner)
 		{
 			this.map = map;
-			this.world = world;
+			this.world = ECSRunner.world;
 
 			//map.ExplosionHappened += ExplosionHappenedHandler;
 			this.configService = configService;
@@ -46,15 +49,28 @@ namespace Nashet.Controllers
 			damages = world.GetPool<DamageComponent>();
 
 			IsReady = true;
+
+			foreach (var item in ECSRunner.updateSystems.GetAllSystems())
+			{
+				var healthSystem = item as HealthSystem;
+				if (healthSystem != null)
+				{
+					healthSystem.OnUnitDied += OnUnitDiedHandler;
+					break;
+				}
+			}
+		}
+
+		private void OnUnitDiedHandler(Vector2Int position)
+		{
+			OnUnitDied?.Invoke(position);
 		}
 
 		public void CreateUnits()
 		{
-
 			var filter = world.Filter<UnitTypeComponent>().Inc<PositionComponent>().End();
 			var positions = world.GetPool<PositionComponent>();
 			var types = world.GetPool<UnitTypeComponent>();
-
 
 			foreach (int entity in filter)
 			{
@@ -162,10 +178,8 @@ namespace Nashet.Controllers
 						UnitClicked?.Invoke(clickedCell, worldPosition);
 
 						RefreshWaypoints(clickedCell);
+						previouslySelectedUnit = world.PackEntity(entity);
 					}
-
-
-					previouslySelectedUnit = world.PackEntity(entity);
 
 					clickedOnEmptyCell = false;
 					break;
@@ -195,6 +209,11 @@ namespace Nashet.Controllers
 			return GetDistance(from, toPosition) <= 2;
 		}
 
+		private void UnitDiedHandler(Vector2Int position)
+		{
+			OnUnitDied?.Invoke(position);
+		}
+
 		private void ClickedOnEmptyCellHandler(Vector2Int clickedCell, Vector3 worldPosition)
 		{
 			if (previouslySelectedUnit != null)
@@ -220,7 +239,7 @@ namespace Nashet.Controllers
 			UnitMoved?.Invoke(from, toPosition);
 		}
 
-		private HashSet<Vector2Int> NearByPoints2(Vector2Int pos)
+		private static HashSet<Vector2Int> NearByPoints2(Vector2Int pos)
 		{
 			var firstRing = NearByPoints(pos);
 			var result = new HashSet<Vector2Int>();
@@ -232,7 +251,8 @@ namespace Nashet.Controllers
 			result.AddRange(firstRing);
 			return result;
 		}
-		private HashSet<Vector2Int> NearByPoints(Vector2Int pos)
+
+		private static HashSet<Vector2Int> NearByPoints(Vector2Int pos)
 		{
 			return new HashSet<Vector2Int> {
 			new Vector2Int(pos.x, pos.y - 1),
@@ -250,6 +270,7 @@ namespace Nashet.Controllers
 		event OnUnitAppeared UnitAppeared;
 		event OnWaypointsRefresh WaypointsRefresh;
 		event OnUnitMoved UnitMoved;
+		event OnUnitDied OnUnitDied;
 
 		void SimulateOneStep();
 

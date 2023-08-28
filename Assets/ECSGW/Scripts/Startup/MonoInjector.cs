@@ -28,12 +28,12 @@ namespace Nashet.Initialization
 
 			var map = ECSRunner.world.GetSingleComponent<MapComponent>();
 
-			var mapController = new MapController(configService, map, ECSRunner.world);
+			var mapController = new MapController(configService, map, ECSRunner);
 
 
 			mapViewGenerator.Subscribe(mapController);
 			mapView.Subscribe(mapController);
-			
+
 
 			new SoundController(mapViewSound);
 
@@ -48,7 +48,5 @@ namespace Nashet.Initialization
 			scoresController.Subscribe(mapController);
 			//scoresView.Subscribe(scoresController);
 		}
-
-
 	}
 }
