@@ -14,6 +14,20 @@
       "dependencies": {},
       "hash": "957b3bb310ec49ab87d3e964f737a7c7e969f282"
     },
+    "com.nashet.map": {
+      "version": "https://github.com/Nashet/NashetMap.git",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "d0d95e638d4d5ec01c6f27d4d6cdec363c321490"
+    },
+    "com.nashet.utils": {
+      "version": "https://github.com/Nashet/NashetUtilsCS.git",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "33c39fc0fa3287317255b02c55866b84f00029ea"
+    },
     "com.unity.2d.animation": {
       "version": "9.0.3",
       "depth": 1,

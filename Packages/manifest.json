@@ -2,6 +2,8 @@
   "dependencies": {
     "com.leoecscommunity.ecslite.unityeditor": "https://github.com/Nashet/ecslite-unityeditor.git",
     "com.leopotam.ecslite": "https://github.com/Leopotam/ecslite.git",
+    "com.nashet.map": "https://github.com/Nashet/NashetMap.git",
+    "com.nashet.utils": "https://github.com/Nashet/NashetUtilsCS.git",
     "com.unity.ai.navigation": "1.1.4",
     "com.unity.collab-proxy": "2.0.5",
     "com.unity.feature.2d": "2.0.0",

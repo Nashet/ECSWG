@@ -1,0 +1,21 @@
+{
+    "name": "com.nashet.ecswg",
+    "rootNamespace": "",
+    "references": [
+        "GUID:56ca18880c5e553409056edb82abd183",
+        "GUID:e59bf9fc7d5a44b18a819a92edd46163",
+        "GUID:6055be8ebefd69e48b49212b09b47b2f",
+        "GUID:21b0c8d1703a94250bfac916590cea4f",
+        "GUID:206779980ac58453ea65e900299ccf71",
+        "GUID:a22362b82293644e1bbe51356c008d63"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
