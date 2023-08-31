@@ -4,6 +4,7 @@ using Nashet.ECS;
 using Nashet.Services;
 using Nashet.Utils;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -19,7 +20,7 @@ namespace Nashet.Controllers
 
 	public enum Direction { horizontal, vertical }
 
-	public class MapController : IMapController
+	public class MapController : MonoBehaviour, IMapController
 	{
 		public event OnExplosionHappened ExplosionHappened;
 		public event OnUnitAppeared UnitAppeared;
@@ -30,17 +31,33 @@ namespace Nashet.Controllers
 		public event OnUnitDied OnUnitDied;
 		public bool IsReady { get; private set; }
 
-		private readonly IConfigService configService;
-		private readonly IEcsSystems perTurnSystems;
+		private IConfigService configService;
+		private IEcsSystems perTurnSystems;
 
-		private readonly MapComponent map;
-		private readonly EcsWorld world;
+		private MapComponent map;
+		private EcsWorld world;
 		private EcsPackedEntity? previouslySelectedUnit;
 		private EcsPool<PositionComponent> positions;
 		private EcsPool<BattleComponent> battles;
 		private EcsPool<DamageComponent> damages;
 
-		public MapController(IConfigService configService, MapComponent map, ECSRunner ECSRunner)
+		private Queue<ValueTuple<Vector2Int, Vector2Int>> queue = new Queue<(Vector2Int, Vector2Int)>();
+
+		private static WaitForSeconds waitForSecondsPointOne;
+
+		// Cache the WaitForSeconds instance on first usage
+		private static WaitForSeconds WaitForSecondsPointOne
+		{
+			get
+			{
+				if (waitForSecondsPointOne == null)
+				{
+					waitForSecondsPointOne = new WaitForSeconds(0.1f);
+				}
+				return waitForSecondsPointOne;
+			}
+		}
+		public void Initialize(IConfigService configService, MapComponent map, ECSRunner ECSRunner)
 		{
 			this.map = map;
 			world = ECSRunner.world;
@@ -55,10 +72,10 @@ namespace Nashet.Controllers
 
 			foreach (var item in ECSRunner.updateSystems.GetAllSystems())
 			{
-				
+
 				if (item is BattleSystem healthSystem)
 				{
-					healthSystem.OnUnitDied += OnUnitDiedHandler;					
+					healthSystem.OnUnitDied += OnUnitDiedHandler;
 				}
 			}
 
@@ -69,11 +86,27 @@ namespace Nashet.Controllers
 					AIMoveSystem.UnitMoved += AIUnitMOvedhandler;
 				}
 			}
+			StartCoroutine(CustomUpdate());
+		}
+
+		private IEnumerator CustomUpdate()
+		{
+			while (true)
+			{
+				if (queue.Count == 0)
+				{
+					yield return WaitForSecondsPointOne;
+					continue;
+				}
+				var item = queue.Dequeue();
+				UnitMoved?.Invoke(item.Item1, item.Item2);
+				yield return WaitForSecondsPointOne;
+			}
 		}
 
 		private void AIUnitMOvedhandler(Vector2Int from, Vector2Int toPosition)
 		{
-			UnitMoved?.Invoke(from, toPosition);
+			queue.Enqueue(new ValueTuple<Vector2Int, Vector2Int>(from, toPosition));
 		}
 
 		private void OnUnitDiedHandler(Vector2Int position)
@@ -130,16 +163,6 @@ namespace Nashet.Controllers
 		public string GetType(int x, int y)
 		{
 			return map.GetElement(x, y);
-		}
-
-		public bool IsPossibleSlide(Vector2Int from, Vector2Int to)
-		{
-			return false;// map.IsPossibleSlide(from, to);//todo fix
-		}
-
-		public void MakeSlide(Vector2Int from, Vector2Int to)
-		{
-			//map.MakeSlide(from, to);
 		}
 
 		public void RefreshView()

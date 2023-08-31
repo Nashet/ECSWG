@@ -18,6 +18,7 @@ namespace Nashet.Initialization
 		[SerializeField] DebugClicker debugClicker;
 		[SerializeField] IScoresView scoresView;
 		[SerializeField] SelectedUnitView selectedUnitView;
+		[SerializeField] MapController mapController;
 
 		private IEnumerator Start()
 		{
@@ -27,9 +28,8 @@ namespace Nashet.Initialization
 			var configService = ServiceLocator.Instance.Get<IConfigService>();
 
 			var map = ECSRunner.world.GetSingleComponent<MapComponent>();
-
-			var mapController = new MapController(configService, map, ECSRunner);
-
+			
+			mapController.Initialize(configService, map, ECSRunner); //todo may be delete it completly
 
 			mapViewGenerator.Subscribe(mapController);
 			mapView.Subscribe(mapController);

@@ -1,4 +1,5 @@
 ﻿using Leopotam.EcsLite;
+using System.Threading;
 using UnityEngine;
 
 namespace Nashet.ECS
@@ -31,25 +32,31 @@ namespace Nashet.ECS
 				var speed = speeds.Get(entity);
 
 				var newPosition = position.pos;
-				newPosition.x -= 1;// speed.speed;
-				if (newPosition.x < 0)
-				{
-					newPosition.x = 0;
-				}
-
-				if (newPosition == position.pos) // check if there is anybody
-				{
-					continue;
-				}
-				if (!IsEmpty(newPosition))
-				{
-					continue;
-				}
 
 
-				var oldPosition = position.pos;
-				position.pos = newPosition;
-				UnitMoved?.Invoke(oldPosition, newPosition);
+				for (int i = 0; i < speed.speed; i++)
+				{
+					newPosition.x -= 1;
+					if (newPosition.x < 0)
+					{
+						newPosition.x = 0;
+					}
+
+					if (newPosition == position.pos) // check if there is anybody
+					{
+						continue;
+					}
+					if (!IsEmpty(newPosition))
+					{
+						continue;
+					}
+
+
+					var oldPosition = position.pos;
+					position.pos = newPosition;
+					UnitMoved?.Invoke(oldPosition, newPosition);
+					//Debug.LogError("AI moved from " + oldPosition + " to " + newPosition);
+				}
 			}
 		}
 

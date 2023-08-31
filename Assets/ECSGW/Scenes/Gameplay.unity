@@ -167,6 +167,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7dc5cb582a1ee94498e57815a471dd27, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &709745188 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1047789990126549972, guid: c680cd369af58a24fb804bbb7523983e, type: 3}
+  m_PrefabInstance: {fileID: 3684014704299814795}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e6de419797cc224ba529fc5d935485f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &822431839
 GameObject:
   m_ObjectHideFlags: 0
@@ -340,6 +351,10 @@ PrefabInstance:
       propertyPath: mapViewSound
       value: 
       objectReference: {fileID: 1715771896}
+    - target: {fileID: 5166550923549968635, guid: 018a0fd1807ad9c4baf73c01effcf467, type: 3}
+      propertyPath: mapController
+      value: 
+      objectReference: {fileID: 709745188}
     - target: {fileID: 5166550923549968635, guid: 018a0fd1807ad9c4baf73c01effcf467, type: 3}
       propertyPath: mapViewClicker
       value: 
