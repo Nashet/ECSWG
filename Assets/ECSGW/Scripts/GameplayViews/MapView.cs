@@ -6,12 +6,10 @@ namespace Nashet.GameplayView
 {
 	public class MapView : MonoBehaviour
 	{
-		[SerializeField] GameObject unitPrefab;
+
 
 		private List<List<CellView>> cellViewList;
 		private IMapController mapController;
-		private float xOffset;
-		private float yOffset;
 
 		private void AnimateExposion(Vector2Int where, int amount)
 		{
@@ -24,11 +22,6 @@ namespace Nashet.GameplayView
 			mapController.ExplosionHappened += ExplosionHappened;
 			mapController.WaypointsRefresh += WaypointsRefreshHandler;
 			mapController.UnitMoved += UnitMovedHandler;
-			mapController.UnitAppeared += UnitAppearedHandler;
-			mapController.OnUnitDied += MapController_OnUnitDied;
-
-			xOffset = mapController.GetSize().x / 2f - 0.5f;
-			yOffset = mapController.GetSize().y / 2f - 0.5f;//todo fixit
 		}
 
 		private void OnDestroy()
@@ -38,35 +31,14 @@ namespace Nashet.GameplayView
 				mapController.ExplosionHappened -= ExplosionHappened;
 				mapController.WaypointsRefresh -= WaypointsRefreshHandler;
 				mapController.UnitMoved -= UnitMovedHandler;
-				mapController.UnitAppeared -= UnitAppearedHandler;
-				mapController.OnUnitDied -= MapController_OnUnitDied;
 			}
 		}
 
-		private void MapController_OnUnitDied(Vector2Int position)
-		{
-			Destroy(cellViewList[position.y][position.x].unitView.gameObject); //todo use object pool
-		}
-
-		private void UnitMovedHandler(Vector2Int from, Vector2Int toPosition)
+		private void UnitMovedHandler(Vector2Int from, Vector2Int toPosition, int unitId)
 		{
 			//Debug.LogError($"moving from {from} to {toPosition}");
-			cellViewList[from.y][from.x].unitView.transform.position = GetOffsetedPosition(toPosition);
 			cellViewList[toPosition.y][toPosition.x] = cellViewList[from.y][from.x];
 			ClearWaypoints();
-		}
-
-		private void UnitAppearedHandler(Vector2Int position, string unitType)
-		{
-			var unit = Instantiate(unitPrefab, GetOffsetedPosition(position), Quaternion.identity);
-			unit.transform.parent = transform;
-			unit.name = $"Unit {unitType})";
-			cellViewList[position.y][position.x].unitView = unit.GetComponent<UnitView>();
-		}
-
-		private Vector3 GetOffsetedPosition(Vector2Int position)
-		{
-			return new Vector3((position.x - xOffset), (position.y - yOffset), 0);
 		}
 
 		private void WaypointsRefreshHandler(HashSet<Vector2Int> wayPoints)

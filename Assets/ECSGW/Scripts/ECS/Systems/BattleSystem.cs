@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Nashet.ECS
 {
-	public delegate void OnUnitDied(Vector2Int position);
+	public delegate void OnUnitDied(Vector2Int position, int unitId);
 
 	sealed class BattleSystem : IEcsRunSystem, IEcsInitSystem
 	{
@@ -42,7 +42,7 @@ namespace Nashet.ECS
 					// im dead, man					
 
 					var position = positions.Get(entity);
-					OnUnitDied?.Invoke(position.pos);
+					OnUnitDied?.Invoke(position.pos, entity);
 					world.DelEntity(entity);
 				}
 				else

@@ -57,12 +57,11 @@ namespace Nashet.GameplayView
 
 					var sprite = mapController.GetSprite(x, y);
 
-					cellView.SetUp(sprite, x, y);// todo view should not change other view. Or is it a controller actually??
+					cellView.SetUp(mapController, sprite, x, y);// todo view should not change other view. Or is it a controller actually?? I think its controllerc
 					newRow.Add(cellView);
 				}
 			}
 			mapView.SetUp(cellViewList);
-			mapController.CreateUnits(); // may be  put it in first tic? todo
 		}
 	}
 }

@@ -67,11 +67,6 @@ namespace Nashet.ECS
 			updateSystems.Run();
 		}
 
-		private void TurnUpdate()
-		{
-			perTurnUpdateSystems.Run();
-		}
-
 		//private void FixedUpdate()
 		//{
 		//	fixedUpdateSystems.Run();

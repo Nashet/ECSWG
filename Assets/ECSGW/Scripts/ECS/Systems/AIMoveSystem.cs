@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Nashet.ECS
 {
-	public delegate void OnUnitMoved(Vector2Int from, Vector2Int toPosition);
+	public delegate void OnUnitMoved(Vector2Int from, Vector2Int toPosition, int unitID);
 	sealed class AIMoveSystem : IEcsRunSystem, IEcsInitSystem
 	{
 		public event OnUnitMoved UnitMoved;
@@ -54,7 +54,7 @@ namespace Nashet.ECS
 
 					var oldPosition = position.pos;
 					position.pos = newPosition;
-					UnitMoved?.Invoke(oldPosition, newPosition);
+					UnitMoved?.Invoke(oldPosition, newPosition, entity);
 					//Debug.LogError("AI moved from " + oldPosition + " to " + newPosition);
 				}
 			}

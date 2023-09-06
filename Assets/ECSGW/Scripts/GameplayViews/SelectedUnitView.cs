@@ -24,7 +24,7 @@ namespace Nashet.GameplayView
 			mapController.UnitMoved -= UnitMovedhandler;
 		}
 
-		private void UnitMovedhandler(Vector2Int from, Vector2Int toPosition)
+		private void UnitMovedhandler(Vector2Int from, Vector2Int toPosition, int unitId)
 		{
 			ClearSelection();
 		}

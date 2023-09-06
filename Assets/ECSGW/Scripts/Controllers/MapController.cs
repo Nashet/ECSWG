@@ -1,6 +1,7 @@
 ﻿using Leopotam.EcsLite;
 using Nashet.Configs;
 using Nashet.ECS;
+using Nashet.GameplayView; //todo hmm
 using Nashet.Services;
 using Nashet.Utils;
 using System;
@@ -14,9 +15,9 @@ namespace Nashet.Controllers
 	public delegate void OnUnitClicked(Vector2Int position, Vector3 worldPosition);
 	public delegate void OnWaypointsRefresh(HashSet<Vector2Int> wayPoints);
 	public delegate void OnExplosionHappened(Vector2Int where, int amount);
-	public delegate void OnUnitAppeared(Vector2Int position, string unitType);
-	public delegate void OnUnitMoved(Vector2Int from, Vector2Int toPosition);
-	public delegate void OnUnitDied(Vector2Int position);
+	public delegate void OnUnitAppeared(Vector2Int position, string unitType, int unitId);
+	public delegate void OnUnitMoved(Vector2Int from, Vector2Int toPosition, int unitId);
+	public delegate void OnUnitDied(Vector2Int positi, int unitId);
 
 	public enum Direction { horizontal, vertical }
 
@@ -31,6 +32,8 @@ namespace Nashet.Controllers
 		public event OnUnitDied OnUnitDied;
 		public bool IsReady { get; private set; }
 
+		[SerializeField] GameObject unitPrefab;
+
 		private IConfigService configService;
 		private IEcsSystems perTurnSystems;
 
@@ -41,9 +44,13 @@ namespace Nashet.Controllers
 		private EcsPool<BattleComponent> battles;
 		private EcsPool<DamageComponent> damages;
 
-		private Queue<ValueTuple<Vector2Int, Vector2Int>> queue = new Queue<(Vector2Int, Vector2Int)>();
+		private readonly Queue<ValueTuple<Vector2Int, Vector2Int, int>> queue = new();
+		private ECSRunner ECSRunner;
 
 		private static WaitForSeconds waitForSecondsPointOne;
+
+		private float xOffset;
+		private float yOffset;
 
 		// Cache the WaitForSeconds instance on first usage
 		private static WaitForSeconds WaitForSecondsPointOne
@@ -57,9 +64,20 @@ namespace Nashet.Controllers
 				return waitForSecondsPointOne;
 			}
 		}
+
+		private IEnumerator Start()
+		{
+			while (ECSRunner == null || !ECSRunner.IsReady)
+			{
+				yield return WaitForSecondsPointOne;
+			}
+			CreateViewForUnits();
+		}
+
 		public void Initialize(IConfigService configService, MapComponent map, ECSRunner ECSRunner)
 		{
 			this.map = map;
+			this.ECSRunner = ECSRunner;
 			world = ECSRunner.world;
 			perTurnSystems = ECSRunner.perTurnUpdateSystems;
 
@@ -68,7 +86,8 @@ namespace Nashet.Controllers
 			battles = world.GetPool<BattleComponent>();
 			damages = world.GetPool<DamageComponent>();
 
-			IsReady = true;
+			xOffset = GetSize().x / 2f - 0.5f;
+			yOffset = GetSize().y / 2f - 0.5f;//todo fixit			
 
 			foreach (var item in ECSRunner.updateSystems.GetAllSystems())
 			{
@@ -83,10 +102,11 @@ namespace Nashet.Controllers
 			{
 				if (item is AIMoveSystem AIMoveSystem)
 				{
-					AIMoveSystem.UnitMoved += AIUnitMOvedhandler;
+					AIMoveSystem.UnitMoved += AIUnitMOvedHandler;
 				}
 			}
 			StartCoroutine(CustomUpdate());
+			IsReady = true;
 		}
 
 		private IEnumerator CustomUpdate()
@@ -99,25 +119,24 @@ namespace Nashet.Controllers
 					continue;
 				}
 				var item = queue.Dequeue();
-				UnitMoved?.Invoke(item.Item1, item.Item2);
+				UnitMoved?.Invoke(item.Item1, item.Item2, item.Item3);
 				yield return WaitForSecondsPointOne;
 			}
 		}
 
-		private void AIUnitMOvedhandler(Vector2Int from, Vector2Int toPosition)
+		private void AIUnitMOvedHandler(Vector2Int from, Vector2Int toPosition, int unitID)
 		{
-			queue.Enqueue(new ValueTuple<Vector2Int, Vector2Int>(from, toPosition));
+			queue.Enqueue(new ValueTuple<Vector2Int, Vector2Int, int>(from, toPosition, unitID));
 		}
 
-		private void OnUnitDiedHandler(Vector2Int position)
+		private void OnUnitDiedHandler(Vector2Int position, int unitId)
 		{
-			OnUnitDied?.Invoke(position);
+			OnUnitDied?.Invoke(position, unitId);
 		}
 
-		public void CreateUnits()
+		private void CreateViewForUnits()
 		{
 			var filter = world.Filter<UnitTypeComponent>().Inc<PositionComponent>().End();
-			var positions = world.GetPool<PositionComponent>();
 			var types = world.GetPool<UnitTypeComponent>();
 
 			foreach (int entity in filter)
@@ -125,8 +144,19 @@ namespace Nashet.Controllers
 				ref var position = ref positions.Get(entity);
 				ref var type = ref types.Get(entity);
 
-				UnitAppeared?.Invoke(position.pos, type.unitId);
+				var unitView = Instantiate(unitPrefab, GetOffsetedPosition(position.pos), Quaternion.identity);
+
+				unitView.transform.parent = transform;
+				unitView.name = $"Unit {type.unitId})";
+				unitView.GetComponent<UnitView>().Subscribe(this, entity);
+				UnitAppeared?.Invoke(position.pos, type.unitId, entity);
 			}
+		}
+
+		//todo make some util for that?
+		public Vector3 GetOffsetedPosition(Vector2Int position)
+		{
+			return new Vector3((position.x - xOffset), (position.y - yOffset), 0);
 		}
 
 		private void ExplosionHappenedHandler(Vector2Int where, int amount)
@@ -158,16 +188,6 @@ namespace Nashet.Controllers
 		public Vector2Int GetSize()
 		{
 			return new Vector2Int(map.xSize, map.ySize);
-		}
-
-		public string GetType(int x, int y)
-		{
-			return map.GetElement(x, y);
-		}
-
-		public void RefreshView()
-		{
-
 		}
 
 		internal void HandleCellClicked(Vector2Int clickedCell, Vector3 worldPosition)
@@ -270,7 +290,7 @@ namespace Nashet.Controllers
 			entity.Unpack(world, out int unpackedEntity);
 			ref var position = ref positions.Get(unpackedEntity);
 			position.pos = toPosition;
-			UnitMoved?.Invoke(from, toPosition);
+			UnitMoved?.Invoke(from, toPosition, unpackedEntity);
 		}
 
 		private static HashSet<Vector2Int> NearByPoints2(Vector2Int pos)
@@ -308,14 +328,9 @@ namespace Nashet.Controllers
 
 		void SimulateOneStep();
 
-		//todo put in a separate controller
-		void RefreshView()
-		{ }
-
 		Sprite GetSprite(int x, int y);
 		Vector2Int GetSize();
-		string GetType(int x, int y);
 		Sprite GetSprite(string cellType);
-		void CreateUnits();
+		Vector3 GetOffsetedPosition(Vector2Int position);
 	}
 }
