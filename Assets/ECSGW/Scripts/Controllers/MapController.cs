@@ -325,6 +325,8 @@ namespace Nashet.Controllers
 		event OnWaypointsRefresh WaypointsRefresh;
 		event OnUnitMoved UnitMoved;
 		event OnUnitDied OnUnitDied;
+		event OnUnitClicked EmptyCellClicked;
+		event OnUnitClicked UnitClicked;
 
 		void SimulateOneStep();
 

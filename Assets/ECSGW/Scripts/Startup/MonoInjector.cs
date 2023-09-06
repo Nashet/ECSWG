@@ -14,7 +14,6 @@ namespace Nashet.Initialization
 		[SerializeField] MapView mapView;
 		[SerializeField] MapViewSound mapViewSound;
 		[SerializeField] MapViewClicker mapViewClicker;
-		[SerializeField] MapViewGenerator mapViewGenerator;
 		[SerializeField] DebugClicker debugClicker;
 		[SerializeField] IScoresView scoresView;
 		[SerializeField] SelectedUnitView selectedUnitView;
@@ -28,15 +27,12 @@ namespace Nashet.Initialization
 			var configService = ServiceLocator.Instance.Get<IConfigService>();
 
 			var map = ECSRunner.world.GetSingleComponent<MapComponent>();
-			
+
 			mapController.Initialize(configService, map, ECSRunner); //todo may be delete it completly
 
-			mapViewGenerator.Subscribe(mapController);
 			mapView.Subscribe(mapController);
 
-
 			new SoundController(mapViewSound);
-
 
 			mapViewClicker.CellClicked += mapController.HandleCellClicked;
 			debugClicker.SimulateStepHappened += mapController.SimulateOneStep;//TODO its better to subscribe inside controller

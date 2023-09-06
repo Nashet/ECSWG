@@ -7,9 +7,9 @@ namespace Nashet.GameplayView
 	public class SelectedUnitView : MonoBehaviour
 	{
 		[SerializeField] SpriteRenderer selection;
-		private MapController mapController;
+		private IMapController mapController;
 
-		internal void Subscribe(MapController mapController) // todo maybe remove interface? Or fix it
+		internal void Subscribe(IMapController mapController) // todo maybe remove interface? Or fix it
 		{
 			this.mapController = mapController;
 			mapController.UnitClicked += UnitClickedHandler;

@@ -1,4 +1,5 @@
 ﻿using Nashet.Controllers;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -6,8 +7,7 @@ namespace Nashet.GameplayView
 {
 	public class MapView : MonoBehaviour
 	{
-
-
+		[SerializeField] GameObject cellViewPrefab;
 		private List<List<CellView>> cellViewList;
 		private IMapController mapController;
 
@@ -22,6 +22,16 @@ namespace Nashet.GameplayView
 			mapController.ExplosionHappened += ExplosionHappened;
 			mapController.WaypointsRefresh += WaypointsRefreshHandler;
 			mapController.UnitMoved += UnitMovedHandler;
+		}
+		private IEnumerator Start()
+		{
+			yield return new WaitWhile(() => mapController == null || !mapController.IsReady);
+			GenerateView();
+		}
+
+		private void GenerateView()
+		{
+			CreateMap();
 		}
 
 		private void OnDestroy()
@@ -66,15 +76,37 @@ namespace Nashet.GameplayView
 			}
 		}
 
-		//todo why setup and injection? cellViewList)
-		internal void SetUp(List<List<CellView>> cellViewList)
-		{
-			this.cellViewList = cellViewList;
-		}
-
 		private void ExplosionHappened(Vector2Int where, int amount)
 		{
 			AnimateExposion(where, amount);
+		}
+
+		private void CreateMap()
+		{
+			var newCellViewList = new List<List<CellView>>();
+			var xOffset = mapController.GetSize().x / 2f - 0.5f;
+			var yOffset = mapController.GetSize().y / 2f - 0.5f;
+
+			for (int y = 0; y < mapController.GetSize().y; y++)
+			{
+				var newRow = new List<CellView>();
+				newCellViewList.Add(newRow);
+				for (int x = 0; x < mapController.GetSize().x; x++)
+				{
+					//todo Should be in controller - view vs view
+					var cell = Instantiate(cellViewPrefab, new Vector3((x - xOffset), (y - yOffset), 0), Quaternion.identity);
+					cell.transform.parent = transform;
+					cell.name = $"CellView({x},{y})";
+
+					var cellView = cell.GetComponent<CellView>();
+
+					var sprite = mapController.GetSprite(x, y);
+
+					cellView.SetUp(mapController, sprite, x, y);// todo view should not change other view. Or is it a controller actually?? I think its controllerc
+					newRow.Add(cellView);
+				}
+			}
+			this.cellViewList = newCellViewList;
 		}
 	}
 }
