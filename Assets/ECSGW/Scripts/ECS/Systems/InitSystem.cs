@@ -18,6 +18,7 @@ namespace Nashet.ECS
 			var speeds = World.GetPool<MovementSpeed>();
 			var unitTypes = World.GetPool<UnitTypeComponent>();
 			var movementBlocks = World.GetPool<BlocksMovementComponent>();
+			var owners = World.GetPool<OwnerComponent>();
 
 
 			var map = World.NewEntity();
@@ -49,6 +50,7 @@ namespace Nashet.ECS
 				unitEntity.AddnSet(speeds).speed = 4;
 				unitEntity.AddnSet(unitTypes).unitId = "A";
 				unitEntity.Add(movementBlocks);
+				unitEntity.AddnSet(owners).ownerId = 1;
 			}
 
 			//that is for experiment:
@@ -59,3 +61,4 @@ namespace Nashet.ECS
 		}
 	}
 }
+

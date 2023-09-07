@@ -1,5 +1,4 @@
 ﻿using Nashet.Controllers;
-using Nashet.FlagGeneration;
 using UnityEngine;
 
 namespace Nashet.GameplayView
@@ -12,24 +11,23 @@ namespace Nashet.GameplayView
 		private int unitId;
 		private IMapController mapController;
 
-		public void SetFlag(Sprite sprite)
+		private void SetFlag(Sprite sprite)
 		{
 			this.sprite.sprite = sprite;
 		}
 
 		private void Start()
 		{
-			var texture = FlagGenerator.Generate(128, 128);
-			Sprite sprite2 = Sprite.Create(texture, new Rect(0, 0, 128, 128), new Vector2(1f, 1f));
-			SetFlag(sprite2);
+			
 		}
 
-		public void Subscribe(IMapController mapController, int unitID)
+		public void Subscribe(IMapController mapController, int unitID, Sprite sprite)
 		{
 			this.unitId = unitID;
 			mapController.OnUnitDied += UnitDiedHandler;
 			mapController.UnitMoved += UnitMovedHandler;
 			this.mapController = mapController;
+			SetFlag(sprite);
 		}
 
 		private void UnitMovedHandler(Vector2Int from, Vector2Int toPosition, int unitId)

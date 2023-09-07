@@ -1,6 +1,7 @@
 ﻿using Leopotam.EcsLite;
 using Nashet.Configs;
 using Nashet.ECS;
+using Nashet.FlagGeneration;
 using Nashet.GameplayView; //todo hmm
 using Nashet.Services;
 using Nashet.Utils;
@@ -138,19 +139,31 @@ namespace Nashet.Controllers
 		{
 			var filter = world.Filter<UnitTypeComponent>().Inc<PositionComponent>().End();
 			var types = world.GetPool<UnitTypeComponent>();
+			Sprite flag = CreateFlag();
+			Sprite flag2 = CreateFlag();
+			var middle = map.xSize / 2;
 
 			foreach (int entity in filter)
 			{
 				ref var position = ref positions.Get(entity);
 				ref var type = ref types.Get(entity);
 
-				var unitView = Instantiate(unitPrefab, GetOffsetedPosition(position.pos), Quaternion.identity);
+				var unit = Instantiate(unitPrefab, GetOffsetedPosition(position.pos), Quaternion.identity);
 
-				unitView.transform.parent = transform;
-				unitView.name = $"Unit {type.unitId})";
-				unitView.GetComponent<UnitView>().Subscribe(this, entity);
+				unit.transform.parent = transform;
+				unit.name = $"Unit {type.unitId})";
+
+				var unitView = unit.GetComponent<UnitView>();
+				unitView.Subscribe(this, entity, position.pos.x < middle ? flag : flag2);
 				UnitAppeared?.Invoke(position.pos, type.unitId, entity);
 			}
+		}
+
+		private static Sprite CreateFlag()
+		{
+			var texture = FlagGenerator.Generate(128, 128);
+			Sprite sprite2 = Sprite.Create(texture, new Rect(0, 0, 128, 128), new Vector2(1f, 1f));
+			return sprite2;
 		}
 
 		//todo make some util for that?
